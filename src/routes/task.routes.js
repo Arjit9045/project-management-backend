@@ -1,0 +1,14 @@
+import { Router } from "express";
+import { createSubTask, createTask, deleteTask, deleteSubTask, getTaskById, getTasks, updateSubTask, updateTask } from "../controllers/task.controllers.js";
+import { verifyJWT, validateProjectPermission } from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/validator.middleware.js";
+import { createSubtaskValidator, createTaskValidator, updateSubtaskValidator, updateTaskValidator } from "../validators/index.js";
+import { upload } from "../middlewares/upload.middleware.js";
+import { AvailableUserRole, UserRolesEnum } from "../utils/constants.js";
+const router = Router();
+router.use(verifyJWT);
+router.route("/:projectId/tasks").get(validateProjectPermission(AvailableUserRole), getTasks).post(validateProjectPermission([UserRolesEnum.ADMIN, UserRolesEnum.PROJECT_ADMIN]), upload.array("attachments", 5), createTaskValidator(), validate, createTask);
+router.route("/:projectId/tasks/:taskId").get(validateProjectPermission(AvailableUserRole), getTaskById).put(validateProjectPermission([UserRolesEnum.ADMIN, UserRolesEnum.PROJECT_ADMIN]), upload.array("attachments", 5), updateTaskValidator(), validate, updateTask).delete(validateProjectPermission([UserRolesEnum.ADMIN, UserRolesEnum.PROJECT_ADMIN]), deleteTask);
+router.route("/:projectId/tasks/:taskId/subtasks").post(validateProjectPermission(AvailableUserRole), createSubtaskValidator(), validate, createSubTask);
+router.route("/:projectId/tasks/:taskId/subtasks/:subTaskId").put(validateProjectPermission(AvailableUserRole), updateSubtaskValidator(), validate, updateSubTask).delete(validateProjectPermission(AvailableUserRole), deleteSubTask);
+export default router;

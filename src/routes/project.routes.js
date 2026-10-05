@@ -1,0 +1,16 @@
+import { Router } from "express";
+import { addMembersToProject, createProject, deleteMember, getProjects, getProjectById, getProjectMembers, updateProject, deleteProject, updateMemberRole } from "../controllers/project.controllers.js";
+import { validate } from "../middlewares/validator.middleware.js";
+import { createProjectValidator, addMembertoProjectValidator, updateMemberRoleValidator, createNoteValidator } from "../validators/index.js";
+import { verifyJWT, validateProjectPermission } from "../middlewares/auth.middleware.js";
+import { AvailableUserRole, UserRolesEnum } from "../utils/constants.js";
+import { createNote, getNotes, deleteNote } from "../controllers/note.controllers.js";
+const router = Router();
+router.use(verifyJWT);
+router.route("/").get(getProjects).post(createProjectValidator(), validate, createProject);
+router.route("/:projectId").get(validateProjectPermission(AvailableUserRole), getProjectById).put(validateProjectPermission([UserRolesEnum.ADMIN]), createProjectValidator(), validate, updateProject).delete(validateProjectPermission([UserRolesEnum.ADMIN]), deleteProject);
+router.route("/:projectId/members").get(validateProjectPermission(AvailableUserRole), getProjectMembers).post(validateProjectPermission([UserRolesEnum.ADMIN]), addMembertoProjectValidator(), validate, addMembersToProject);
+router.route("/:projectId/members/:userId").put(validateProjectPermission([UserRolesEnum.ADMIN]), updateMemberRoleValidator(), validate, updateMemberRole).delete(validateProjectPermission([UserRolesEnum.ADMIN]), deleteMember);
+router.route("/:projectId/notes").get(validateProjectPermission(AvailableUserRole), getNotes).post(validateProjectPermission(AvailableUserRole), createNoteValidator(), validate, createNote);
+router.route("/:projectId/notes/:noteId").delete(validateProjectPermission(AvailableUserRole), deleteNote);
+export default router;
