@@ -1,0 +1,15 @@
+{
+  "name": "project-management",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "arjit dixit",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "devDependencies": {
+    "prettier": "3.9.4"
+  }
+}
